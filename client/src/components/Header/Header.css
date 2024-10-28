@@ -92,5 +92,14 @@
     cursor: pointer;
 }
 
+.cart-icon, .account-icon {
+    width: 30px;  /* Tamaño por defecto */
+    height: 30px; /* Tamaño por defecto */
+    cursor: pointer;
+}
+
+/* Otros estilos que ya tienes... */
+
+
 
 

@@ -1,84 +1,58 @@
 import React, { useState } from 'react';
 import './Header.css';
-import { Link, useLocation } from 'react-router-dom';
-import Images from '../../utils/Images/Images';
-// import CartModal from '../CartModal/CartModal';
-// import AccountModal from '../AccountModal/AccountModal';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { RiShoppingCartLine, RiAccountCircleLine } from 'react-icons/ri';
 
 const Header = () => {
-    const [isCartModalOpen, setIsCartModalOpen] = useState(false);
     const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
     const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
     const location = useLocation();
     const path = location.pathname;
+    const navigate = useNavigate(); // Importa useNavigate
 
     const closeModals = () => {
-        setIsCartModalOpen(false);
         setIsAccountModalOpen(false);
     };
 
-    const toggleCartModal = () => {
-        setIsAnimating(true);
-        if (isCartModalOpen) {
-            setTimeout(() => {
-                setIsCartModalOpen(false);
-                setTimeout(() => {
-                    setIsHeaderExpanded(false);
-                    setIsAnimating(false);
-                }, 100);
-            }, 150);
+    const toggleAccountModal = () => {
+        if (isAccountModalOpen) {
+            setIsAccountModalOpen(false);
+            setIsHeaderExpanded(false);
         } else {
             closeModals(); // Cierra la otra modal si está abierta
             setIsHeaderExpanded(true);
-            setTimeout(() => {
-                setIsCartModalOpen(true);
-                setIsAnimating(false);
-            }, 50);
+            setIsAccountModalOpen(true);
         }
     };
 
-    const toggleAccountModal = () => {
-        setIsAnimating(true);
-        if (isAccountModalOpen) {
-            setTimeout(() => {
-                setIsAccountModalOpen(false);
-                setTimeout(() => {
-                    setIsHeaderExpanded(false);
-                    setIsAnimating(false);
-                }, 100);
-            }, 150);
-        } else {
-            closeModals(); // Cierra la otra modal si está abierta
-            setIsHeaderExpanded(true);
-            setTimeout(() => {
-                setIsAccountModalOpen(true);
-                setIsAnimating(false);
-            }, 50);
-        }
+    // Función para manejar la redirección al carrito
+    const goToCart = () => {
+        navigate('/carrito'); // Cambia '/carrito' a la ruta real de tu página de carrito
     };
 
     return (
         <header className="header">
             <div className="header__container">
                 <div className='logo-header__container'>
-                    <Link to={"/"}><img src={Images.logos.logo} alt="Logo" className="header__logo" /></Link>
+                    <Link to={"/"}>
+                        {/* Logo aquí */}
+                    </Link>
                 </div>
 
                 <div className='navigation-header__container'>
                     <div className={`sections-header__container ${isHeaderExpanded ? 'expanded' : ''}`}>
-                        <Link to={"/Nosotros"} className={path === "/Nosotros" ? "active" : ""}>NOSOTROS</Link>
-                        <Link to={"/Productos"} className={path === "/Productos" ? "active" : ""}>PRODUCTOS</Link>
-                        <Link to={"/Contacto"} className={path === "/Contacto" ? "active" : ""}>CONTÁCTENOS</Link>
+                        <Link to="/Nosotros" className={path === "/Nosotros" ? "active" : ""}>NOSOTROS</Link>
+                        <Link to="/Productos" className={path === "/Productos" ? "active" : ""}>PRODUCTOS</Link>
+                        <Link to="/Contacto" className={path === "/Contacto" ? "active" : ""}>CONTÁCTENOS</Link>
                     </div>
 
                     <div className={`icons-header__container ${isHeaderExpanded ? 'expanded' : ''}`}>
                         <ul className="header__list">
-                            <li className="header__element">
-                                <img src={Images.icons.blackcart} alt="Carrito" className="cart" onClick={toggleCartModal} />
+                            <li className="header__element" onClick={goToCart}> {/* Redirige al carrito */}
+                                <RiShoppingCartLine className="cart-icon" />
                             </li>
-                            <li className="header__element">
-                                <img src={Images.icons.blackaccount} alt='Cuenta' className='account' onClick={toggleAccountModal} />
+                            <li className="header__element" onClick={toggleAccountModal}>
+                                <RiAccountCircleLine className="account-icon" />
                             </li>
                         </ul>
                     </div>

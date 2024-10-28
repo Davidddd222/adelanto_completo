@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "../../context/CartContext/CartContext";
 import "./CartPage.css";
 
-const Cart = () => {
+const CartPage = () => {
   const { cartItems, updateCartItemQuantity, removeFromCart, clearCart } = useCart();
   const [productos, setProductos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,14 +18,7 @@ const Cart = () => {
     deliveryName: "",
     deliveryAddress: ""
   });
-  const [errors, setErrors] = useState({
-    cardNumber: "",
-    cardName: "",
-    expirationDate: "",
-    cvv: "",
-    deliveryName: "",
-    deliveryAddress: ""
-  });
+  const [errors, setErrors] = useState({});
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
@@ -83,12 +76,6 @@ const Cart = () => {
       }
     }
     setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
-    if (errorMessage) {
-      setAlertMessage(errorMessage);
-      setShowAlert(true);
-    } else {
-      setShowAlert(false);
-    }
   };
 
   const handleInputChange = (e) => {
@@ -103,18 +90,33 @@ const Cart = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    let hasErrors = false;
+
     if (selectedPaymentMethod === "creditCard") {
-      Object.keys(creditCardDetails).forEach((field) => validateField(field, creditCardDetails[field]));
-      if (Object.values(errors).every((error) => error === "")) {
-        console.log("Datos de la tarjeta: ", creditCardDetails);
-        alert("Pago realizado con éxito.");
-      }
+      Object.keys(creditCardDetails).forEach((field) => {
+        validateField(field, creditCardDetails[field]);
+        if (errors[field]) hasErrors = true;
+      });
     } else if (selectedPaymentMethod === "cashOnDelivery") {
-      Object.keys(deliveryDetails).forEach((field) => validateField(field, deliveryDetails[field]));
-      if (Object.values(errors).every((error) => error === "")) {
-        console.log("Detalles de entrega: ", deliveryDetails);
-        alert("Pedido realizado con éxito para entrega.");
-      }
+      Object.keys(deliveryDetails).forEach((field) => {
+        validateField(field, deliveryDetails[field]);
+        if (errors[field]) hasErrors = true;
+      });
+    }
+
+    if (!hasErrors) {
+      // Simulate successful payment
+      console.log("Datos de la tarjeta: ", creditCardDetails);
+      alert("Pago realizado con éxito.");
+      
+      // Reset fields after payment
+      setCreditCardDetails({ cardNumber: "", cardName: "", expirationDate: "", cvv: "" });
+      setDeliveryDetails({ deliveryName: "", deliveryAddress: "" });
+      setShowPaymentOptions(false); // Close payment options
+    } else {
+      setAlertMessage("Por favor, corrige los errores antes de enviar.");
+      setShowAlert(true);
     }
   };
 
@@ -262,7 +264,7 @@ const Cart = () => {
                     </form>
                   </div>
                 )}
-                
+
                 {selectedPaymentMethod === "cashOnDelivery" && (
                   <div className="delivery-form">
                     <h4>Detalles de entrega</h4>
@@ -303,4 +305,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default CartPage;
