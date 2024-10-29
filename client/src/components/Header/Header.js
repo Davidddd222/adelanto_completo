@@ -2,32 +2,27 @@ import React, { useState } from 'react';
 import './Header.css';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { RiShoppingCartLine, RiAccountCircleLine } from 'react-icons/ri';
+import { useAuth } from '../../context/AuthContext/AuthContext';
+import UserMenu from '../UserMenu/UserMenu';
+import AccountModal from '../AccountModal/AccountModal';
 
 const Header = () => {
-    const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-    const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
+    const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(true);
     const location = useLocation();
     const path = location.pathname;
-    const navigate = useNavigate(); // Importa useNavigate
+    const navigate = useNavigate();
+    const { user } = useAuth();
 
-    const closeModals = () => {
-        setIsAccountModalOpen(false);
+    const closeMenu = () => {
+        setIsAccountMenuOpen(false);
     };
 
-    const toggleAccountModal = () => {
-        if (isAccountModalOpen) {
-            setIsAccountModalOpen(false);
-            setIsHeaderExpanded(false);
-        } else {
-            closeModals(); // Cierra la otra modal si está abierta
-            setIsHeaderExpanded(true);
-            setIsAccountModalOpen(true);
-        }
+    const toggleAccountMenu = () => {
+        setIsAccountMenuOpen(!isAccountMenuOpen);
     };
 
-    // Función para manejar la redirección al carrito
     const goToCart = () => {
-        navigate('/carrito'); // Cambia '/carrito' a la ruta real de tu página de carrito
+        navigate('/Carrito');
     };
 
     return (
@@ -40,18 +35,18 @@ const Header = () => {
                 </div>
 
                 <div className='navigation-header__container'>
-                    <div className={`sections-header__container ${isHeaderExpanded ? 'expanded' : ''}`}>
+                    <div className={`sections-header__container ${isAccountMenuOpen ? 'expanded' : ''}`}>
                         <Link to="/Nosotros" className={path === "/Nosotros" ? "active" : ""}>NOSOTROS</Link>
                         <Link to="/Productos" className={path === "/Productos" ? "active" : ""}>PRODUCTOS</Link>
                         <Link to="/Contacto" className={path === "/Contacto" ? "active" : ""}>CONTÁCTENOS</Link>
                     </div>
 
-                    <div className={`icons-header__container ${isHeaderExpanded ? 'expanded' : ''}`}>
+                    <div className={`icons-header__container ${isAccountMenuOpen ? 'expanded' : ''}`}>
                         <ul className="header__list">
-                            <li className="header__element" onClick={goToCart}> {/* Redirige al carrito */}
+                            <li className="header__element" onClick={goToCart}>
                                 <RiShoppingCartLine className="cart-icon" />
                             </li>
-                            <li className="header__element" onClick={toggleAccountModal}>
+                            <li className="header__element" onClick={toggleAccountMenu}>
                                 <RiAccountCircleLine className="account-icon" />
                             </li>
                         </ul>
@@ -59,8 +54,9 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* <CartModal isOpen={isCartModalOpen} onClose={toggleCartModal} />
-            <AccountModal isOpen={isAccountModalOpen} onClose={toggleAccountModal} /> */}
+            {isAccountMenuOpen && (
+                <AccountModal onClose={closeMenu} isOpen={toggleAccountMenu} />
+            )}
         </header>
     );
 }

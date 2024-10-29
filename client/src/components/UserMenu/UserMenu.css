@@ -1,0 +1,20 @@
+.user-menu {
+    position: absolute; /* Para que se superponga sobre otros elementos */
+    top: 60px; /* Ajusta según la altura de tu header */
+    right: 20px; /* Ajusta según donde quieras que aparezca */
+    background-color: white; /* O el color que desees */
+    border: 1px solid #ccc; /* Para darle un borde */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para mejor visualización */
+    z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
+    padding: 10px; /* Espaciado interno */
+}
+
+.user-menu ul {
+    list-style: none; /* Elimina los puntos de la lista */
+    padding: 0; /* Elimina el padding */
+}
+
+.user-menu li {
+    padding: 8px 0; /* Espaciado entre los elementos de la lista */
+    cursor: pointer; /* Cambia el cursor al pasar el mouse */
+}

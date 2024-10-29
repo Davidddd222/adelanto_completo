@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useCart } from "../../context/CartContext/CartContext";
+import { useAuth } from '../../context/AuthContext/AuthContext'; // Importa tu contexto de autenticación
 import "./CartPage.css";
 
 const CartPage = () => {
   const { cartItems, updateCartItemQuantity, removeFromCart, clearCart } = useCart();
+  const { isAuthenticated } = useAuth(); // Estado que indica si el usuario está logueado
   const [productos, setProductos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
@@ -41,6 +43,11 @@ const CartPage = () => {
   );
 
   const handleCheckout = () => {
+    if (!isAuthenticated) {
+      setAlertMessage("Debes iniciar sesión primero.");
+      setShowAlert(true);
+      return; // No proceder si no está autenticado
+    }
     setShowPaymentOptions(true);
   };
 
@@ -106,14 +113,11 @@ const CartPage = () => {
     }
 
     if (!hasErrors) {
-      // Simulate successful payment
       console.log("Datos de la tarjeta: ", creditCardDetails);
       alert("Pago realizado con éxito.");
-      
-      // Reset fields after payment
       setCreditCardDetails({ cardNumber: "", cardName: "", expirationDate: "", cvv: "" });
       setDeliveryDetails({ deliveryName: "", deliveryAddress: "" });
-      setShowPaymentOptions(false); // Close payment options
+      setShowPaymentOptions(false);
     } else {
       setAlertMessage("Por favor, corrige los errores antes de enviar.");
       setShowAlert(true);
@@ -129,47 +133,21 @@ const CartPage = () => {
         ) : cartItems.length === 0 ? (
           <div className="empty-cart">
             <p>Tu carrito está vacío.</p>
-            <a href="/productos" className="shop-btn">
-              Ver productos
-            </a>
+            <a href="/productos" className="shop-btn">Ver productos</a>
           </div>
         ) : (
-          <>
+          <div className="cart-content">
             <div className="cart-items">
               {cartItems.map((item) => (
                 <div key={item.id} className="cart-item">
                   <div className="cart-item-info">
-                    <div>
-                      <h3>{item.nombre}</h3>
-                      <p className="item-price">${item.precio}</p>
-                      <div className="cart-item-quantity">
-                        <button
-                          onClick={() =>
-                            item.quantity > 1
-                              ? updateCartItemQuantity(item.id, item.quantity - 1)
-                              : null
-                          }
-                        >
-                          -
-                        </button>
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          readOnly
-                        />
-                        <button
-                          onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}
-                        >
-                          +
-                        </button>
-                        <button
-                          className="remove-btn"
-                          onClick={() => removeFromCart(item.id)}
-                        >
-                          Eliminar
-                        </button>
-                      </div>
+                    <h3>{item.nombre}</h3>
+                    <p className="item-price">${item.precio}</p>
+                    <div className="cart-item-quantity">
+                      <button onClick={() => item.quantity > 1 ? updateCartItemQuantity(item.id, item.quantity - 1) : null}>-</button>
+                      <input type="number" min="1" value={item.quantity} readOnly />
+                      <button onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}>+</button>
+                      <button className="remove-btn" onClick={() => removeFromCart(item.id)}>Eliminar</button>
                     </div>
                   </div>
                   <div className="cart-item-total">
@@ -178,129 +156,129 @@ const CartPage = () => {
                 </div>
               ))}
             </div>
-            <div className="cart-summary">
-              <h3>Resumen del pedido</h3>
-              <p>Subtotal: ${subtotal.toFixed(2)}</p>
-              <p>Envío: Gratis</p>
-              <h3>Total: ${subtotal.toFixed(2)}</h3>
-              <button className="checkout-btn" onClick={handleCheckout}>
-                Proceder a pagar
-              </button>
-              <button className="clear-btn" onClick={clearCart}>
-                Vaciar Carrito
-              </button>
-            </div>
-            {showPaymentOptions && (
-              <div className="payment-options">
-                <h4>Elegir método de pago</h4>
-                <label>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="creditCard"
-                    onChange={handlePaymentMethodChange}
-                  />
-                  Tarjeta de crédito
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cashOnDelivery"
-                    onChange={handlePaymentMethodChange}
-                  />
-                  Contraentrega
-                </label>
-
-                {selectedPaymentMethod === "creditCard" && (
-                  <div className="credit-card-form">
-                    <h4>Detalles de la tarjeta de crédito</h4>
-                    <form onSubmit={handleSubmit}>
-                      <div>
-                        <label>Número de tarjeta</label>
-                        <input
-                          type="text"
-                          name="cardNumber"
-                          placeholder="0000 0000 0000 0000"
-                          value={creditCardDetails.cardNumber}
-                          onChange={handleInputChange}
-                        />
-                        {errors.cardNumber && <p className="error-message">{errors.cardNumber}</p>}
-                      </div>
-                      <div>
-                        <label>Nombre en la tarjeta</label>
-                        <input
-                          type="text"
-                          name="cardName"
-                          placeholder="Nombre del titular"
-                          value={creditCardDetails.cardName}
-                          onChange={handleInputChange}
-                        />
-                        {errors.cardName && <p className="error-message">{errors.cardName}</p>}
-                      </div>
-                      <div>
-                        <label>Fecha de vencimiento</label>
-                        <input
-                          type="text"
-                          name="expirationDate"
-                          placeholder="MM/AA"
-                          value={creditCardDetails.expirationDate}
-                          onChange={handleInputChange}
-                        />
-                        {errors.expirationDate && <p className="error-message">{errors.expirationDate}</p>}
-                      </div>
-                      <div>
-                        <label>CVV</label>
-                        <input
-                          type="text"
-                          name="cvv"
-                          placeholder="CVV"
-                          value={creditCardDetails.cvv}
-                          onChange={handleInputChange}
-                        />
-                        {errors.cvv && <p className="error-message">{errors.cvv}</p>}
-                      </div>
-                      <button type="submit">Pagar</button>
-                    </form>
-                  </div>
-                )}
-
-                {selectedPaymentMethod === "cashOnDelivery" && (
-                  <div className="delivery-form">
-                    <h4>Detalles de entrega</h4>
-                    <form onSubmit={handleSubmit}>
-                      <div>
-                        <label>Nombre</label>
-                        <input
-                          type="text"
-                          name="deliveryName"
-                          placeholder="Tu nombre"
-                          value={deliveryDetails.deliveryName}
-                          onChange={handleInputChange}
-                        />
-                        {errors.deliveryName && <p className="error-message">{errors.deliveryName}</p>}
-                      </div>
-                      <div>
-                        <label>Dirección</label>
-                        <input
-                          type="text"
-                          name="deliveryAddress"
-                          placeholder="Tu dirección"
-                          value={deliveryDetails.deliveryAddress}
-                          onChange={handleInputChange}
-                        />
-                        {errors.deliveryAddress && <p className="error-message">{errors.deliveryAddress}</p>}
-                      </div>
-                      <button type="submit">Pagar</button>
-                    </form>
-                  </div>
-                )}
+            <div className="payment-summary-container">
+              <div className="cart-summary">
+                <h3>Resumen del pedido</h3>
+                <p>Subtotal: ${subtotal.toFixed(2)}</p>
+                <p>Envío: Gratis</p>
+                <h3>Total: ${subtotal.toFixed(2)}</h3>
+                <button className="checkout-btn" onClick={handleCheckout}>Proceder a pagar</button>
               </div>
-            )}
-          </>
+              {showPaymentOptions && (
+                <div className="payment-options">
+                  <h4>Elegir método de pago</h4>
+                  <label>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="creditCard"
+                      onChange={handlePaymentMethodChange}
+                    />
+                    Tarjeta de crédito
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cashOnDelivery"
+                      onChange={handlePaymentMethodChange}
+                    />
+                    Contraentrega
+                  </label>
+
+                  {selectedPaymentMethod === "creditCard" && (
+                    <div className="credit-card-form">
+                      <h4>Detalles de la tarjeta de crédito</h4>
+                      <form onSubmit={handleSubmit}>
+                        <div>
+                          <label>Número de tarjeta</label>
+                          <input
+                            type="text"
+                            name="cardNumber"
+                            placeholder="0000 0000 0000 0000"
+                            value={creditCardDetails.cardNumber}
+                            onChange={handleInputChange}
+                          />
+                          {errors.cardNumber && <p className="error-message">{errors.cardNumber}</p>}
+                        </div>
+                        <div>
+                          <label>Nombre en la tarjeta</label>
+                          <input
+                            type="text"
+                            name="cardName"
+                            placeholder="Nombre del titular"
+                            value={creditCardDetails.cardName}
+                            onChange={handleInputChange}
+                          />
+                          {errors.cardName && <p className="error-message">{errors.cardName}</p>}
+                        </div>
+                        <div>
+                          <label>Fecha de vencimiento</label>
+                          <input
+                            type="text"
+                            name="expirationDate"
+                            placeholder="MM/AA"
+                            value={creditCardDetails.expirationDate}
+                            onChange={handleInputChange}
+                          />
+                          {errors.expirationDate && <p className="error-message">{errors.expirationDate}</p>}
+                        </div>
+                        <div>
+                          <label>CVV</label>
+                          <input
+                            type="text"
+                            name="cvv"
+                            placeholder="123"
+                            value={creditCardDetails.cvv}
+                            onChange={handleInputChange}
+                          />
+                          {errors.cvv && <p className="error-message">{errors.cvv}</p>}
+                        </div>
+                        <button type="submit">Confirmar pago</button>
+                      </form>
+                    </div>
+                  )}
+
+                  {selectedPaymentMethod === "cashOnDelivery" && (
+                    <div className="delivery-form">
+                      <h4>Detalles de entrega</h4>
+                      <form onSubmit={handleSubmit}>
+                        <div>
+                          <label>Nombre de entrega</label>
+                          <input
+                            type="text"
+                            name="deliveryName"
+                            value={deliveryDetails.deliveryName}
+                            onChange={handleInputChange}
+                          />
+                          {errors.deliveryName && <p className="error-message">{errors.deliveryName}</p>}
+                        </div>
+                        <div>
+                          <label>Dirección de entrega</label>
+                          <input
+                            type="text"
+                            name="deliveryAddress"
+                            value={deliveryDetails.deliveryAddress}
+                            onChange={handleInputChange}
+                          />
+                          {errors.deliveryAddress && <p className="error-message">{errors.deliveryAddress}</p>}
+                        </div>
+                        <button type="submit">Confirmar entrega</button>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
-      {showAlert && <div className="alert">{alertMessage}</div>}
+      {showAlert && (
+        <div className="alert">
+          {alertMessage}
+          <button onClick={() => setShowAlert(false)}>Cerrar</button>
+        </div>
+      )}
     </div>
   );
 };
