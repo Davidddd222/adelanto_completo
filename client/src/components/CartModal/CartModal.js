@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import './CartModal.css';
 import { useCart } from '../../context/CartContext/CartContext';
 import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const CartModal = ({ isOpen, onClose }) => {
     const { cartItems, updateCartItemQuantity, removeFromCart, clearCart } = useCart();
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false); // Mantener estado de animación
 
     const handleClose = () => {
         setIsAnimating(true);
@@ -27,38 +29,9 @@ const CartModal = ({ isOpen, onClose }) => {
         removeFromCart(id);
     };
 
-    const handleCheckout = async () => {
-        if (!user) {
-            alert('Debes iniciar sesión para realizar una compra.');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const now = new Date();
-            const saleData = {
-                fecha: now.toISOString(),
-                cliente: `${user.nombre} ${user.apellido}`,
-                correo: user.correo,
-                total: subtotal,
-                estado: 'Pendiente',
-                items: cartItems.map(item => ({
-                    producto_id: item.id,
-                    nombre_producto: item.nombre,
-                    cantidad: item.quantity,
-                    precio_unitario: item.precio
-                }))
-            };
-
-            // Aquí puedes manejar la lógica de venta localmente en lugar de enviar a la API
-            console.log('Venta generada:', saleData);
-            clearCart();
-            handleClose();
-        } catch (error) {
-            console.error('Error al generar la venta:', error);
-        } finally {
-            setLoading(false);
-        }
+    const handleGoToCart = () => {
+        navigate('/Carrito');
+        handleClose();
     };
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.precio * item.quantity, 0);
@@ -69,7 +42,7 @@ const CartModal = ({ isOpen, onClose }) => {
     };
 
     return (
-        <div className={`modal ${isOpen ? 'show' : ''} ${isAnimating ? 'close-animation' : 'open-animation'}`} onClick={handleClose}>
+        <div className={`modal ${isOpen ? 'show' : ''} ${isAnimating ? 'close-animation' : ''}`} onClick={handleClose}>
             <div className={`modal__content ${isAnimating ? 'close' : ''}`} onClick={handleModalClick}>
                 <div className="cart__header">
                     <h3 className='cart__articles'>Artículos: {totalItems}</h3>
@@ -105,10 +78,10 @@ const CartModal = ({ isOpen, onClose }) => {
                         </div>
                         <button
                             className="cart__checkout"
-                            onClick={handleCheckout}
+                            onClick={handleGoToCart}
                             disabled={loading}
                         >
-                            {loading ? 'Generando venta...' : 'Generar Venta'}
+                            {loading ? 'Cargando...' : 'Ir a carrito'}
                         </button>
                     </>
                 ) : (

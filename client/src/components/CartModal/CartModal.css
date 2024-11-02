@@ -11,7 +11,8 @@
     border-bottom: #000 1px solid; /* Borde inferior */
     box-shadow: #00000007 10px 15px 15px; /* Sombra */
     border-bottom-left-radius: 15px; /* Esquinas redondeadas */
-    transition: top 0.3s ease-in-out; /* Animación de deslizamiento */
+    transition: top 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Animación de deslizamiento y opacidad */
+    opacity: 0; /* Comienza invisible */
 }
 
 .modal.show {
@@ -23,6 +24,7 @@
 
 .modal.close-animation {
     top: -100%; /* Desliza hacia arriba al cerrar */
+    opacity: 0; /* Hacer invisible */
 }
 
 .modal__content {

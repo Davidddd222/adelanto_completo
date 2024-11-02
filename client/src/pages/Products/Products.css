@@ -10,8 +10,11 @@
 .product-image-titles__container {
     width: 400px;
     position: absolute;
-    top: 30%;
-    left: 100px;
+    top: 30%; /* Mantén este valor para centrar verticalmente */
+    left: 100px; /* Ajusta esto si necesitas mover el contenedor */
+    display: flex;
+    flex-direction: column; /* Coloca los elementos en columna */
+    align-items: flex-start; /* Alinea los elementos a la izquierda */
 }
 
 .product-image-title {
@@ -19,13 +22,16 @@
     color: #c7effe;
     font-weight: 500;
     font-family: "Noto Serif", serif;
+    margin-bottom: 0; /* Elimina el margen inferior para evitar separación */
 }
 
 .product-image-subtitle {
     font-size: 27px;
     font-weight: 300;
     color: #fff;
+    margin-top: 10px; /* Ajusta este valor para alinear verticalmente con "ENTQUIM" */
 }
+
 
 .product-main__container {
     width: 100%;
